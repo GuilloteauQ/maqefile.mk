@@ -16,9 +16,15 @@ _RULE=0
 _RULE_TOTAL=0
 define RULE=
 $$(call inc,_RULE_TOTAL)
-data/foo-$(1)-$(2): Makefile maqefile.mk
+data/foo-$(1)-$(2):
 > $$(call logNrunProgress,myrule,sleep $(2) && echo $(1) > $$@,_RULE,_RULE_TOTAL)
 endef
 
 $(foreach i,$(ITERS),$(foreach s,$(SLEEPS),$(eval $(call RULE,$(i),$(s)))))
 
+
+
+SHELL:=nix
+.SHELLFLAGS:=develop --command
+plop:
+> python3 --version > $@

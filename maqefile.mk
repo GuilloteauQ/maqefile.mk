@@ -3,6 +3,7 @@ SHELL := bash
 # Enable these for a better experience
 .RECIPEPREFIX = >
 .ONESHELL:
+
 .SHELLFLAGS := -eu -o pipefail -c
 .DELETE_ON_ERROR:
 MAKEFLAGS += --warn-undefined-variables
@@ -45,4 +46,43 @@ endef
 
 define inc=
 $(eval $(1)=$$(echo $$(($(value $(1))+1))))
+endef
+
+define GUILEMAQEFILE
+(use-modules (srfi srfi-19))
+
+(define (to-string x)
+    (cond
+        ((string? x) x)
+        ((number? x) (number->string x))
+    ))
+
+(define (flatten l)
+    (if (not (list? l))
+        (list l)
+        (if (= (length l) 0)
+            '()
+            (append (flatten (cdr l)) (flatten (car l))))))
+
+(define (expand-rule-aux rule lists)
+    (if (= (length lists) 0)
+        rule
+        (map (lambda (x) (expand-rule-aux (string-append rule "," (to-string x)) (cdr lists)))
+             (car lists))))
+
+(define (expand-rule rule lists)
+    (flatten (expand-rule-aux rule lists)))
+
+(define (expand-eval rule lists)
+    (map gmk-eval
+         (map (lambda (x) (gmk-expand (string-append "$(call " x ")")))
+              (expand-rule rule lists))))
+
+(define (expand-aux f params lists)
+    (if (= (length lists) 0)
+        (string-join (apply f (map to-string params)) "")
+        (map (lambda (x) (expand-aux f (append params (list x)) (cdr lists))) (car lists))))
+
+(define (expand f lists)
+    (flatten (expand-aux f '() lists)))
 endef
