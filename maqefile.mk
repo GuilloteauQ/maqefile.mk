@@ -75,7 +75,7 @@ define GUILEMAQEFILE
 
 (define (expand-eval rule lists)
     (map gmk-eval
-         (map (lambda (x) (gmk-expand (string-append "$(call " x ")")))
+         (map (lambda (x) (gmk-expand (string-append "$$(call " x ")")))
               (expand-rule rule lists))))
 
 (define (expand-aux f params lists)
@@ -87,4 +87,4 @@ define GUILEMAQEFILE
     (flatten (expand-aux f '() lists)))
 endef
 
-$(guile (GUILEMAQEFILE))
+$(guile $(GUILEMAQEFILE))
