@@ -86,3 +86,5 @@ define GUILEMAQEFILE
 (define (expand f lists)
     (flatten (expand-aux f '() lists)))
 endef
+
+$(guile (GUILEMAQEFILE))
